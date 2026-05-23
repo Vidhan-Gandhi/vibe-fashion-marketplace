@@ -1,23 +1,54 @@
-'use client'
-
 import Link from 'next/link'
-import { useCart } from './CartContext'
+import { createClient } from '@/utils/supabase/server'
 
-export default function Navbar() {
-  const { cart } = useCart()
+export default async function Navbar() {
+  const supabase = await createClient()
+  
+  // Check if a user is currently logged in
+  const { data: { user } } = await supabase.auth.getUser()
 
   return (
-    <nav className="border-b border-gray-100 bg-white px-8 py-4 flex justify-between items-center sticky top-0 z-50">
-      <Link href="/" className="text-2xl font-extrabold tracking-tighter text-black">
-        VIBE FASHION
-      </Link>
-      <div className="space-x-6 flex items-center">
-        <Link href="/cart" className="text-sm font-medium text-black hover:text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full transition-colors">
-          Cart ({cart.length})
-        </Link>
-        <Link href="/login" className="text-sm font-medium text-gray-500 hover:text-black">
-          Seller Portal
-        </Link>
+    <nav className="border-b border-gray-200 bg-white">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 justify-between items-center">
+          
+          {/* Logo */}
+          <div className="flex items-center">
+            <Link href="/" className="text-xl font-extrabold tracking-tight text-gray-900">
+              VIBE FASHION
+            </Link>
+          </div>
+
+          {/* Navigation Links */}
+          <div className="flex items-center space-x-6">
+            <Link href="/cart" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+              Cart
+            </Link>
+            
+            {user ? (
+              <>
+                <Link href="/dashboard" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                  Seller Portal
+                </Link>
+                
+                {/* The NEW Secure Sign Out Form */}
+                <form action="/auth/signout" method="post" className="m-0 p-0 flex">
+                  <button 
+                    type="submit" 
+                    className="text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
+                  >
+                    Sign Out
+                  </button>
+                </form>
+              </>
+            ) : (
+              <Link href="/login" className="text-sm font-medium text-gray-700 hover:text-gray-900">
+                Seller Login
+              </Link>
+            )}
+          </div>
+          
+        </div>
       </div>
     </nav>
   )
